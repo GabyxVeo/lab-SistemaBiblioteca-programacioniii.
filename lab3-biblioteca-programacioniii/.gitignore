@@ -1,0 +1,15 @@
+# Carpetas de compilación
+/out/
+/bin/
+/target/
+/build/
+*.class
+
+# Configuración del IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+nbproject/
