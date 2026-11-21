@@ -109,20 +109,3 @@ src/
   hilos/          OyenteTarea, TareaReporteCatalogo, SimuladorConcurrencia
   main/           Main
 ```
-
-## Guion de la demo (3 errores a propósito)
-
-1. **Dato no numérico:** tipo *Revista*, título "Prueba", edición `abc`, **Registrar Recurso** (diálogo de error).
-2. **Regla de negocio incumplida:** título `Clean Code`, días de retraso `-1`, **Calcular Multa** (advertencia).
-3. **Excepción propia:** escribir `Clean Code` y el usuario `20231234` (Ana), **Prestar Recurso**; repetir con el usuario `Luis Perez` (advertencia "Recurso no disponible" con el nombre de quien lo tiene).
-4. **Usuario inexistente:** escribir el usuario `Fantasma`, **Prestar Recurso** (advertencia que sugiere usar **Agregar Usuario**). Luego **Agregar Usuario** y volver a prestar escribiendo su nombre.
-5. **Ventanas aparte:** **Ver Catálogo** y **Ver Usuarios** (se actualizan solos tras cada operación).
-6. **Hilos:** **Generar Reporte en Hilo** (la ventana sigue respondiendo) y **Simular Préstamo Concurrente** (un éxito y un rechazo).
-
-## Uso de herramientas de IA
-
-- **Qué se usó:** Claude (Anthropic).
-- **Para qué:** reorganizar el proyecto del Laboratorio III sobre las clases del Laboratorio II, escribir y ajustar las excepciones, la ventana Swing y los hilos, y redactar los comentarios de defensa y esta documentación.
-- **Cómo lo validó la IA en su entorno:** compiló con `javac -Xlint:all` (JDK 21) sin errores ni advertencias, ejecutó pruebas automáticas sobre el modelo (reglas de negocio, excepciones, multas y 20 simulaciones concurrentes) y probó la ventana con una pantalla virtual simulando los clics de cada botón.
-- **Cómo lo validó el equipo:** [COMPLETAR: qué probó cada integrante en su computadora].
-- **Un caso en que la IA dio código incorrecto y cómo se corrigió:** [COMPLETAR con un caso real del equipo].

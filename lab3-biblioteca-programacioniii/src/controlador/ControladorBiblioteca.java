@@ -188,9 +188,6 @@ public class ControladorBiblioteca {
         }
     }
 
-    // ================================================================== hilos
-
-    /** Tarea 1: reporte lento en un hilo aparte (Runnable) para no congelar la ventana. */
     private void generarReporte() {
         vista.setBotonReporteHabilitado(false);
         vista.setProgreso(0);
@@ -221,7 +218,6 @@ public class ControladorBiblioteca {
         }
     }
 
-    /** Tarea 2 (bonificación): dos hilos compiten por el mismo recurso; el método synchronized lo protege. */
     private void simularPrestamoConcurrente() {
         String solicitado = vista.getTitulo().trim();
         try {
@@ -263,7 +259,6 @@ public class ControladorBiblioteca {
         }
     }
 
-    // ================================================================== actualización de la vista
 
     private void refrescarVista() {
         vista.setCatalogo(String.join("\n", repo.resumenCatalogo()));
