@@ -6,11 +6,7 @@ import modelo.RegistradorOperaciones;
 import java.util.List;
 import javax.swing.SwingUtilities;
 
-/**
- * Tarea concurrente (Runnable): audita el catálogo en 10 pasos de 250 ms, simulando una
- * exportación lenta. Se ejecuta en un hilo aparte para que la ventana no se congele:
- * el hilo de eventos de Swing (EDT) queda libre para repintar y atender clics.
- */
+
 public class TareaReporteCatalogo implements Runnable {
 
     private static final int PASOS = 10;
@@ -26,14 +22,14 @@ public class TareaReporteCatalogo implements Runnable {
 
     @Override
     public void run() {
-        List<String> catalogo = repo.resumenCatalogo(); // copia (snapshot) del catálogo
+        List<String> catalogo = repo.resumenCatalogo();
         int total = catalogo.size();
         int desde = 0;
 
         try (RegistradorOperaciones reg = new RegistradorOperaciones("REPORTE", repo.getBitacora())) {
             reg.registrar("Auditoría de " + total + " recursos en el hilo " + Thread.currentThread().getName());
             for (int paso = 1; paso <= PASOS; paso++) {
-                Thread.sleep(PAUSA_MS); // trabajo lento simulado
+                Thread.sleep(PAUSA_MS);
 
                 int hasta = total * paso / PASOS;
                 for (int i = desde; i < hasta; i++) {
@@ -44,7 +40,7 @@ public class TareaReporteCatalogo implements Runnable {
                 int porcentaje = paso * 100 / PASOS;
                 reg.registrar("Paso " + paso + "/" + PASOS + " (" + porcentaje + "%)");
                 String estado = "Generando reporte... " + porcentaje + "%";
-                // La pantalla solo se toca desde el EDT:
+
                 SwingUtilities.invokeLater(() -> oyente.alProgresar(porcentaje, estado));
             }
             reg.marcarExitosa();

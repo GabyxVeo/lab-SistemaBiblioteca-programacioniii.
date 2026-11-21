@@ -9,11 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.swing.SwingUtilities;
 
-/**
- * Bonificación (sección 5.5 de la guía): dos hilos (Hilo-Mostrador-1 y Hilo-Web-2) intentan
- * prestar a la vez el MISMO recurso a dos usuarios distintos. Gracias al método synchronized
- * del repositorio, uno tiene éxito y el otro recibe RecursoNoDisponibleException.
- */
+
 public class SimuladorConcurrencia implements Runnable {
 
     private final BibliotecaRepositorio repo;
@@ -22,7 +18,7 @@ public class SimuladorConcurrencia implements Runnable {
     private final String carnetWeb;
     private final OyenteTarea oyente;
 
-    private final CountDownLatch salida = new CountDownLatch(1); // "pistola de salida" para ambos hilos
+    private final CountDownLatch salida = new CountDownLatch(1);
     private final AtomicInteger exitos = new AtomicInteger();
     private final AtomicInteger rechazos = new AtomicInteger();
 
@@ -40,13 +36,13 @@ public class SimuladorConcurrencia implements Runnable {
         Thread mostrador = new Thread(() -> intentarPrestar(carnetMostrador), "Hilo-Mostrador-1");
         Thread web = new Thread(() -> intentarPrestar(carnetWeb), "Hilo-Web-2");
 
-        repo.setRetardoTramiteMs(200); // el trámite dentro de la sección crítica tarda 200 ms
+        repo.setRetardoTramiteMs(200);
         try (RegistradorOperaciones reg = new RegistradorOperaciones("SIMULACION", repo.getBitacora())) {
             reg.registrar("Dos hilos competirán por '" + titulo + "'");
             avisar(10, "Preparando hilos...");
             mostrador.start();
             web.start();
-            salida.countDown(); // los dos arrancan al mismo tiempo
+            salida.countDown();
 
             Thread.sleep(100);
             reg.registrar("Estados a los 100 ms -> " + mostrador.getName() + ": " + mostrador.getState()
@@ -84,7 +80,7 @@ public class SimuladorConcurrencia implements Runnable {
             } catch (RecursoNoDisponibleException e) {
                 rechazos.incrementAndGet();
                 reg.registrar("RECHAZADO -> " + e.getMessage());
-                reg.marcarExitosa(); // el rechazo es un resultado esperado, no un fallo del programa
+                reg.marcarExitosa();
             } catch (ReglaNegocioException e) {
                 reg.registrar("REGLA DE NEGOCIO -> " + e.getMessage());
             }

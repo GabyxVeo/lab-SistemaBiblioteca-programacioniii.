@@ -11,10 +11,7 @@ import modelo.RegistradorOperaciones;
 import modelo.Revista;
 import vista.VentanaBiblioteca;
 
-/**
- * Controlador (MVC): escucha los eventos de la vista, invoca al modelo, atrapa las excepciones
- * (de la más específica a la más general), actualiza la vista y coordina los hilos.
- */
+
 public class ControladorBiblioteca {
 
     private final BibliotecaRepositorio repo;
@@ -31,7 +28,7 @@ public class ControladorBiblioteca {
         vista.setVisible(true);
     }
 
-    /** Todos los botones se conectan aquí con lambdas (ActionListener es una interfaz funcional). */
+
     private void conectarEventos() {
         vista.getBtnRegistrar().addActionListener(e -> registrarRecurso());
         vista.getBtnPrestar().addActionListener(e -> prestarRecurso());
@@ -44,10 +41,9 @@ public class ControladorBiblioteca {
         vista.getBtnSimular().addActionListener(e -> simularPrestamoConcurrente());
     }
 
-    // ================================================================== PUNTO 1: registro de recurso
 
     private void registrarRecurso() {
-        // try-with-resources: close() del registrador se llama solo, haya o no excepción
+
         try (RegistradorOperaciones reg = new RegistradorOperaciones("REGISTRO", repo.getBitacora())) {
             String tipo = vista.getTipoSeleccionado();
             String titulo = vista.getTitulo();
@@ -58,7 +54,7 @@ public class ControladorBiblioteca {
             if (tipo.equals("Libro")) {
                 resultado = repo.registrar(new Libro(titulo, extra));
             } else {
-                // Integer.parseInt lanza NumberFormatException si el texto no es un número
+
                 resultado = repo.registrar(new Revista(titulo, Integer.parseInt(extra.trim())));
             }
 
@@ -66,7 +62,7 @@ public class ControladorBiblioteca {
             reg.marcarExitosa();
             vista.mostrarInformacion("Registro exitoso", resultado);
 
-            // Varios catch: de la excepción MÁS ESPECÍFICA a la MÁS GENERAL
+
         } catch (NumberFormatException ex) {
             vista.mostrarError("Error de formato numérico",
                     "La edición de la revista debe ser un número entero (por ejemplo: 45).\n"
@@ -76,17 +72,17 @@ public class ControladorBiblioteca {
         } catch (Exception ex) {
             vista.mostrarError("Error inesperado", "No se pudo registrar el recurso: " + ex.getMessage());
         } finally {
-            vista.limpiarCampos(); // se ejecuta SIEMPRE, haya o no excepción
+            vista.limpiarCampos();
             refrescarVista();
         }
     }
 
-    // ================================================================== alta de usuario
+
 
     private void agregarUsuario() {
-        String[] datos = vista.pedirDatosUsuario(); // {tipo, nombre, carnet, carrera/facultad}
+        String[] datos = vista.pedirDatosUsuario();
         if (datos == null) {
-            return; // el usuario canceló el diálogo
+            return;
         }
         try (RegistradorOperaciones reg = new RegistradorOperaciones("USUARIO", repo.getBitacora())) {
             reg.registrar("Solicitud de alta: " + datos[0] + " '" + datos[1].trim() + "' (" + datos[2].trim() + ")");
@@ -106,7 +102,7 @@ public class ControladorBiblioteca {
         }
     }
 
-    // ================================================================== PUNTO 2: préstamo
+
 
     private void prestarRecurso() {
         try (RegistradorOperaciones reg = new RegistradorOperaciones("PRESTAMO", repo.getBitacora())) {
@@ -114,13 +110,13 @@ public class ControladorBiblioteca {
             String titulo = vista.getTitulo();
             reg.registrar("Solicitud de préstamo: '" + titulo.trim() + "' para el usuario '" + usuario.trim() + "'");
 
-            String mensaje = repo.procesarPrestamo(usuario, titulo); // throws RecursoNoDisponibleException
+            String mensaje = repo.procesarPrestamo(usuario, titulo);
 
             reg.registrar(mensaje);
             reg.marcarExitosa();
             vista.mostrarInformacion("Préstamo exitoso", mensaje);
 
-        } catch (RecursoNoDisponibleException ex) { // checked y propia: va antes que Exception
+        } catch (RecursoNoDisponibleException ex) {
             vista.mostrarAdvertencia("Recurso no disponible",
                     ex.getMessage()
                             + "\n\nRecurso: " + ex.getTituloRecurso()
@@ -135,7 +131,7 @@ public class ControladorBiblioteca {
         }
     }
 
-    // ================================================================== devolución
+
 
     private void devolverRecurso() {
         try (RegistradorOperaciones reg = new RegistradorOperaciones("DEVOLUCION", repo.getBitacora())) {
@@ -159,15 +155,15 @@ public class ControladorBiblioteca {
         }
     }
 
-    // ================================================================== PUNTO 3: multa por retraso
+
 
     private void calcularMulta() {
         try (RegistradorOperaciones reg = new RegistradorOperaciones("MULTA", repo.getBitacora())) {
             String titulo = vista.getTitulo();
-            int dias = Integer.parseInt(vista.getDiasRetraso().trim()); // puede lanzar NumberFormatException
+            int dias = Integer.parseInt(vista.getDiasRetraso().trim());
             reg.registrar("Cálculo de multa: '" + titulo.trim() + "' con " + dias + " días de retraso");
 
-            int multa = repo.calcularMulta(titulo, dias); // puede lanzar ReglaNegocioException
+            int multa = repo.calcularMulta(titulo, dias);
 
             String mensaje = "Multa para '" + titulo.trim() + "' con " + dias + " día(s) de retraso: $" + multa;
             reg.registrar(mensaje);
@@ -195,14 +191,14 @@ public class ControladorBiblioteca {
 
         TareaReporteCatalogo tarea = new TareaReporteCatalogo(repo, new OyenteTarea() {
             @Override
-            public void alProgresar(int porcentaje, String estado) { // se ejecuta en el EDT
+            public void alProgresar(int porcentaje, String estado) {
                 vista.setProgreso(porcentaje);
                 vista.setEstado(estado);
                 refrescarBitacora();
             }
 
             @Override
-            public void alTerminar(String resumen) { // se ejecuta en el EDT
+            public void alTerminar(String resumen) {
                 vista.setBotonReporteHabilitado(true);
                 vista.setEstado("Reporte finalizado.");
                 refrescarVista();
@@ -211,7 +207,7 @@ public class ControladorBiblioteca {
         });
 
         try {
-            new Thread(tarea, "Hilo-Reporte").start(); // start(), NO run(): run() lo ejecutaría en el hilo actual
+            new Thread(tarea, "Hilo-Reporte").start();
         } catch (RuntimeException ex) {
             vista.setBotonReporteHabilitado(true);
             vista.mostrarError("Error inesperado", "No se pudo iniciar el reporte: " + ex.getMessage());

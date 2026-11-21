@@ -8,35 +8,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Datos y lógica de negocio de la biblioteca (en el Laboratorio II estas listas vivían en el controlador).
- * No conoce Swing ni imprime en consola: lanza excepciones y devuelve textos o datos.
- *
- * Los métodos que leen o modifican las listas son synchronized: dos hilos (por ejemplo el
- * mostrador y la web) no pueden entrar a la vez a la sección crítica.
- */
+
 public class BibliotecaRepositorio {
 
     private final ArrayList<Usuario> usuarios = new ArrayList<>();
     private final ArrayList<Prestable> catalogo = new ArrayList<>();
     private final List<String> bitacora = Collections.synchronizedList(new ArrayList<>());
-    private volatile int retardoTramiteMs = 0; // solo para la simulación concurrente
+    private volatile int retardoTramiteMs = 0;
 
-    /** Datos iniciales (los mismos del Laboratorio II) para probar la ventana desde el primer momento. */
     public void cargarDatosIniciales() {
-        // UPCASTING: un Estudiante y un Docente se guardan en una lista de tipo Usuario
+
         usuarios.add(new Estudiante("Ana Lopez", "20231234", "Ing. Software"));
         usuarios.add(new Estudiante("Luis Perez", "20231235", "Ing. Software"));
         usuarios.add(new Docente("Marta Diaz", "D-001", "Ingenieria"));
 
-        // UPCASTING A INTERFAZ: un Libro y una Revista se guardan como Prestable
+
         catalogo.add(new Libro("Java Como Programar", "Deitel"));
         catalogo.add(new Libro("Clean Code", "Robert Martin"));
         catalogo.add(new Revista("Revista Tecnologia", 45));
         catalogo.add(new Revista("Ciencia Hoy", 12));
     }
 
-    // ---------------------------------------------------------------- registro
 
     public synchronized String registrar(Prestable recurso) {
         if (recurso == null) {
@@ -51,9 +43,9 @@ public class BibliotecaRepositorio {
         return recurso.getClass().getSimpleName() + " registrado: '" + recurso.getTitulo() + "'.";
     }
 
-    /** Agrega un usuario nuevo (Estudiante o Docente). Valida con throw que no falte nada ni se repita el carnet. */
+
     public synchronized String registrarUsuario(String tipo, String nombre, String carnet, String extra) {
-        // Los constructores ya validan que nombre y carnet no estén vacíos (throw ReglaNegocioException)
+
         String carreraOFacultad = extra == null ? "" : extra.trim();
         Usuario nuevo = tipo.equals("Docente")
                 ? new Docente(nombre, carnet, carreraOFacultad)
@@ -70,28 +62,22 @@ public class BibliotecaRepositorio {
         return nuevo.getClass().getSimpleName() + " registrado: " + nuevo.presentarse() + ".";
     }
 
-    // ---------------------------------------------------------------- préstamo (sección crítica)
 
-    /**
-     * SECCIÓN CRÍTICA: revisar si el recurso está libre y marcarlo como prestado son pasos
-     * que deben ocurrir juntos. Con synchronized solo un hilo a la vez los ejecuta.
-     * Declara con throws la excepción CHECKED: quien llame a este método debe atraparla o declararla.
-     */
     public synchronized String procesarPrestamo(String carnet, String titulo)
             throws RecursoNoDisponibleException {
         Usuario usuario = buscarUsuario(carnet);
         Prestable recurso = buscarRecurso(titulo);
 
         if (!recurso.estaDisponible()) {
-            // throw de la excepción checked, con el nombre de quien lo tiene
+
             throw new RecursoNoDisponibleException(recurso.getTitulo(), buscarPoseedor(recurso));
         }
-        // puedePrestar() es la SOBRECARGA del Laboratorio II; usa getLimitePrestamos() (método abstracto)
+
         if (!usuario.puedePrestar()) {
             throw new ReglaNegocioException(usuario.getNombre() + " llegó a su límite de "
                     + usuario.getLimitePrestamos() + " préstamos.");
         }
-        simularTramite(); // en la simulación, aquí se pierde tiempo ENTRE la revisión y el préstamo
+        simularTramite();
         recurso.prestar();
         usuario.agregarPrestamo(recurso);
         return "Préstamo registrado: '" + recurso.getTitulo() + "' para " + usuario.presentarse()
@@ -113,17 +99,17 @@ public class BibliotecaRepositorio {
     public synchronized int calcularMulta(String titulo, int diasRetraso) {
         Prestable.validarDiasRetraso(diasRetraso);
         Prestable recurso = buscarRecurso(titulo);
-        // LIGADURA DINÁMICA: Libro usa el multa() de la interfaz y Revista usa el suyo
+
         return recurso.multa(diasRetraso);
     }
 
-    // ---------------------------------------------------------------- consultas
+
 
     public synchronized List<String> resumenCatalogo() {
         List<String> lineas = new ArrayList<>();
         int numero = 1;
         for (Prestable recurso : catalogo) {
-            // LIGADURA DINÁMICA: toString() de Libro o de Revista
+
             lineas.add(numero + ". " + recurso + " | " + recurso.getDiasPrestamo() + " dias");
             numero++;
         }
@@ -134,7 +120,7 @@ public class BibliotecaRepositorio {
         List<String> lineas = new ArrayList<>();
         int numero = 1;
         for (Usuario usuario : usuarios) {
-            // LIGADURA DINÁMICA: presentarse() y getLimitePrestamos() dependen del objeto real
+
             lineas.add(numero + ". " + usuario.presentarse()
                     + " | Préstamos: " + usuario.getCantidadPrestados()
                     + "/" + usuario.getLimitePrestamos());
@@ -170,10 +156,6 @@ public class BibliotecaRepositorio {
         }
         return Optional.empty();
     }
-
-    // ---------------------------------------------------------------- búsquedas internas
-
-    /** Verifica que el usuario escrito exista: se busca por carnet y, si no, por nombre. */
     private Usuario buscarUsuario(String dato) {
         if (dato == null || dato.isBlank()) {
             throw new ReglaNegocioException("Debe escribir el usuario (carnet o nombre).");
@@ -215,9 +197,7 @@ public class BibliotecaRepositorio {
         return "otro usuario";
     }
 
-    // ---------------------------------------------------------------- bitácora y simulación
 
-    /** Lista sincronizada que comparten los RegistradorOperaciones. */
     public List<String> getBitacora() {
         return bitacora;
     }
@@ -228,7 +208,7 @@ public class BibliotecaRepositorio {
         }
     }
 
-    /** Retardo artificial dentro de la sección crítica (0 = sin retardo). Lo usa SimuladorConcurrencia. */
+
     public void setRetardoTramiteMs(int milisegundos) {
         this.retardoTramiteMs = milisegundos;
     }
@@ -239,7 +219,7 @@ public class BibliotecaRepositorio {
             try {
                 Thread.sleep(ms);
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt(); // se conserva la señal de interrupción
+                Thread.currentThread().interrupt();
             }
         }
     }

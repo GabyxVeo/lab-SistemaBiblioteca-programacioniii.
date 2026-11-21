@@ -2,20 +2,19 @@ package modelo;
 
 import excepciones.ReglaNegocioException;
 
-// HERENCIA: Libro es un Recurso (extends) y además cumple el contrato Prestable (implements).
 public class Libro extends Recurso implements Prestable {
     private String autor;
 
     public Libro(String titulo, String autor) {
-        super(titulo); // super(): construye primero la parte heredada (Recurso)
-        // Laboratorio III: regla de negocio
+        super(titulo);
+
         if (autor == null || autor.isBlank()) {
             throw new ReglaNegocioException("El libro '" + this.titulo + "' debe tener autor.");
         }
         this.autor = autor.trim();
     }
 
-    // INTERFAZ: implementación propia de Libro
+
     @Override
     public boolean prestar() {
         if (disponible) {
@@ -31,7 +30,7 @@ public class Libro extends Recurso implements Prestable {
         disponible = true;
     }
 
-    // INTERFAZ: un libro se presta 14 días (Revista lo hace distinto)
+
     @Override
     public int getDiasPrestamo() {
         return 14;
@@ -41,7 +40,7 @@ public class Libro extends Recurso implements Prestable {
         return autor;
     }
 
-    // SOBRESCRITURA (overriding): reemplaza el toString() de Recurso
+
     @Override
     public String toString() {
         return "[Libro] " + titulo + " de " + autor + " | " + getEstado();
