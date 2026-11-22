@@ -11,7 +11,7 @@ Coevaluación de participación en escala independiente de 0 % a 100 % por perso
 | Integrante | Carnet | Participación | Concepto que defiende |
 |---|---|---|---|
 | [Nombre completo 1] | [carnet] | [__ %] | Manejo de excepciones (try-catch-finally, checked/unchecked, orden de los catch) |
-| [Nombre completo 2] | [carnet] | [__ %] | Excepciones personalizadas, throw/throws y try-with-resources |
+|Denys Fernando Garcia Alvarado | GA-69750-25 | 25 % | Excepciones personalizadas, throw/throws y try-with-resources |
 | [Nombre completo 3] | [carnet] | [__ %] | Interfaz gráfica Swing: ventana, layouts, eventos y diálogos |
 | [Nombre completo 4] | [carnet] | [__ %] | Hilos: Thread / Runnable aplicados a una tarea del proyecto |
 
