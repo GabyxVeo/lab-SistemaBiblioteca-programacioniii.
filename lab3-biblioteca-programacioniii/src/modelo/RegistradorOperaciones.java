@@ -4,13 +4,17 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-
+/**
+ * Recurso propio AutoCloseable: lleva una bitácora en memoria de cada operación.
+ * Se usa con try-with-resources: Java llama a close() automáticamente al salir del
+ * bloque try, haya ocurrido una excepción o no.
+ */
 public class RegistradorOperaciones implements AutoCloseable {
 
     private static final DateTimeFormatter HORA = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
     private final String operacion;
-    private final List<String> destino;
+    private final List<String> destino; // bitácora compartida (lista sincronizada)
     private boolean cerrado = false;
     private boolean exitosa = false;
     private int entradas = 0;
@@ -29,7 +33,7 @@ public class RegistradorOperaciones implements AutoCloseable {
         escribir(mensaje);
     }
 
-
+    /** Se invoca al final del try si todo salió bien; si no se invoca, close() lo reporta como error. */
     public void marcarExitosa() {
         exitosa = true;
     }
