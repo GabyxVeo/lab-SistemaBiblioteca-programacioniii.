@@ -77,8 +77,6 @@ public class ControladorBiblioteca {
         }
     }
 
-
-
     private void agregarUsuario() {
         String[] datos = vista.pedirDatosUsuario();
         if (datos == null) {
@@ -101,8 +99,6 @@ public class ControladorBiblioteca {
             refrescarVista();
         }
     }
-
-
 
     private void prestarRecurso() {
         try (RegistradorOperaciones reg = new RegistradorOperaciones("PRESTAMO", repo.getBitacora())) {
@@ -131,8 +127,6 @@ public class ControladorBiblioteca {
         }
     }
 
-
-
     private void devolverRecurso() {
         try (RegistradorOperaciones reg = new RegistradorOperaciones("DEVOLUCION", repo.getBitacora())) {
             String usuario = vista.getUsuario();
@@ -154,8 +148,6 @@ public class ControladorBiblioteca {
             refrescarVista();
         }
     }
-
-
 
     private void calcularMulta() {
         try (RegistradorOperaciones reg = new RegistradorOperaciones("MULTA", repo.getBitacora())) {
@@ -254,7 +246,6 @@ public class ControladorBiblioteca {
             vista.mostrarError("Error inesperado", "No se pudo iniciar la simulación: " + ex.getMessage());
         }
     }
-
 
     private void refrescarVista() {
         vista.setCatalogo(String.join("\n", repo.resumenCatalogo()));
