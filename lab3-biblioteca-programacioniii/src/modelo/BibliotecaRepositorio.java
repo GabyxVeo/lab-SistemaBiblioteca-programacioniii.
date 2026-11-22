@@ -8,13 +8,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Datos y lógica de negocio de la biblioteca (en el Laboratorio II estas listas vivían en el controlador).
- * No conoce Swing ni imprime en consola: lanza excepciones y devuelve textos o datos.
- *
- * Los métodos que leen o modifican las listas son synchronized: dos hilos (por ejemplo el
- * mostrador y la web) no pueden entrar a la vez a la sección crítica.
- */
 public class BibliotecaRepositorio {
 
     private final ArrayList<Usuario> usuarios = new ArrayList<>();
@@ -70,28 +63,23 @@ public class BibliotecaRepositorio {
         return nuevo.getClass().getSimpleName() + " registrado: " + nuevo.presentarse() + ".";
     }
 
-    // ---------------------------------------------------------------- préstamo (sección crítica)
+    // ----- préstamo
 
-    /**
-     * SECCIÓN CRÍTICA: revisar si el recurso está libre y marcarlo como prestado son pasos
-     * que deben ocurrir juntos. Con synchronized solo un hilo a la vez los ejecuta.
-     * Declara con throws la excepción CHECKED: quien llame a este método debe atraparla o declararla.
-     */
     public synchronized String procesarPrestamo(String carnet, String titulo)
             throws RecursoNoDisponibleException {
         Usuario usuario = buscarUsuario(carnet);
         Prestable recurso = buscarRecurso(titulo);
 
         if (!recurso.estaDisponible()) {
-            // throw de la excepción checked, con el nombre de quien lo tiene
+
             throw new RecursoNoDisponibleException(recurso.getTitulo(), buscarPoseedor(recurso));
         }
-        // puedePrestar() es la SOBRECARGA del Laboratorio II; usa getLimitePrestamos() (método abstracto)
+
         if (!usuario.puedePrestar()) {
             throw new ReglaNegocioException(usuario.getNombre() + " llegó a su límite de "
                     + usuario.getLimitePrestamos() + " préstamos.");
         }
-        simularTramite(); // en la simulación, aquí se pierde tiempo ENTRE la revisión y el préstamo
+        simularTramite();
         recurso.prestar();
         usuario.agregarPrestamo(recurso);
         return "Préstamo registrado: '" + recurso.getTitulo() + "' para " + usuario.presentarse()
